@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest';
+import { apiErrorSchema } from '@tagdyr/schemas';
 
 /**
  * Smoke-тест маршрутизации (без БД): проверяем, что /lives/compare не
@@ -19,7 +20,7 @@ describe('lives routing', () => {
   it('GET /lives/compare доходит до auth (401), не теряется в /:id', async () => {
     const res = await app.request('/api/v1/lives/compare?a=x&b=y');
     expect(res.status).toBe(401);
-    const body = await res.json();
+    const body = apiErrorSchema.parse(await res.json());
     expect(body.error.code).toBe('UNAUTHORIZED');
   });
 
@@ -31,7 +32,7 @@ describe('lives routing', () => {
   it('полностью неизвестный путь вне роутеров → 404 в едином формате', async () => {
     const res = await app.request('/api/v1/nonexistent');
     expect(res.status).toBe(404);
-    const body = await res.json();
+    const body = apiErrorSchema.parse(await res.json());
     expect(body.error.code).toBe('NOT_FOUND');
   });
 });
