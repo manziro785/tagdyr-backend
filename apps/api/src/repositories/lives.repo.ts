@@ -1,7 +1,7 @@
-import { and, eq, desc } from 'drizzle-orm';
+import { and, eq, desc, asc } from 'drizzle-orm';
 import type { DB } from '../db/client.js';
-import { lives, lifeSnapshots } from '../db/schema.js';
-import type { LifeRow, LifeSnapshotRow } from '../db/schema.js';
+import { lives, lifeSnapshots, seasonResults } from '../db/schema.js';
+import type { LifeRow, LifeSnapshotRow, SeasonResultRow } from '../db/schema.js';
 
 /** Тип «исполнителя запроса» — db или транзакция. */
 type Executor = DB | Parameters<Parameters<DB['transaction']>[0]>[0];
@@ -84,5 +84,23 @@ export const livesRepo = {
   ): Promise<LifeSnapshotRow> {
     const rows = await exec.insert(lifeSnapshots).values(values).returning();
     return rows[0]!;
+  },
+
+  /** Все снапшоты жизни по возрастанию сезона (для сравнения/дневника). */
+  allSnapshots(exec: Executor, lifeId: string): Promise<LifeSnapshotRow[]> {
+    return exec
+      .select()
+      .from(lifeSnapshots)
+      .where(eq(lifeSnapshots.lifeId, lifeId))
+      .orderBy(asc(lifeSnapshots.seasonNumber));
+  },
+
+  /** Все результаты сезонов жизни (для индексов в сравнении). */
+  allResults(exec: Executor, lifeId: string): Promise<SeasonResultRow[]> {
+    return exec
+      .select()
+      .from(seasonResults)
+      .where(eq(seasonResults.lifeId, lifeId))
+      .orderBy(asc(seasonResults.seasonNumber));
   },
 };
