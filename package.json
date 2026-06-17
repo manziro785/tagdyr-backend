@@ -4,7 +4,7 @@
   "private": true,
   "description": "Tagdyr (SimuLife 2.0) backend — shared engine, schemas and API",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "packageManager": "pnpm@11.6.0",
   "scripts": {
