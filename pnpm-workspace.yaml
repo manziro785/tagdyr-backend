@@ -1,0 +1,7 @@
+packages:
+  - "packages/*"
+  - "apps/*"
+
+# esbuild (тянется vitest/tsx) собирает нативный бинарь — разрешаем build-скрипт.
+allowBuilds:
+  esbuild: true
