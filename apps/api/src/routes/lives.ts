@@ -12,6 +12,7 @@ import { validation } from '../http/errors.js';
 import * as livesService from '../services/lives.service.js';
 import { completeSeason } from '../services/complete-season.service.js';
 import { rewindLife } from '../services/rewind.service.js';
+import { compareLives } from '../services/compare.service.js';
 
 export const livesRoutes = new Hono<AppEnv>();
 
@@ -21,6 +22,10 @@ const idParam = z.object({ id: z.string().uuid('Invalid life id') });
 const seasonParams = z.object({
   id: z.string().uuid('Invalid life id'),
   n: z.coerce.number().int().min(1).max(5),
+});
+const compareQuery = z.object({
+  a: z.string().uuid('Invalid life id in "a"'),
+  b: z.string().uuid('Invalid life id in "b"'),
 });
 
 // GET /lives — список слотов
@@ -35,6 +40,14 @@ livesRoutes.post('/', async (c) => {
   const body = await parseBody(c, createLifeRequestSchema);
   const life = await livesService.createLife(userId, body);
   return c.json(life, 201);
+});
+
+// GET /lives/compare?a=&b= — данные двух жизней для экрана сравнения
+// ВАЖНО: регистрируем ДО /:id, чтобы статический сегмент не перехватился параметром.
+livesRoutes.get('/compare', async (c) => {
+  const userId = requireUserId(c);
+  const { a, b } = parseInput(c.req.query(), compareQuery);
+  return c.json(await compareLives({ userId, aId: a, bId: b }));
 });
 
 // GET /lives/:id — полный LifeState + последний снапшот
