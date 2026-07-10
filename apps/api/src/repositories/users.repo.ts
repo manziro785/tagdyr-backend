@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import type { DB } from '../db/client.js';
 import { users } from '../db/schema.js';
 import type { UserRow } from '../db/schema.js';
@@ -9,6 +9,21 @@ export const usersRepo = {
   async findById(exec: Executor, id: string): Promise<UserRow | undefined> {
     const rows = await exec.select().from(users).where(eq(users.id, id)).limit(1);
     return rows[0];
+  },
+
+  /** Email-пользователь: providerId == нормализованный email, поэтому ищем по паре. */
+  async findByEmail(exec: Executor, email: string): Promise<UserRow | undefined> {
+    const rows = await exec
+      .select()
+      .from(users)
+      .where(and(eq(users.provider, 'email'), eq(users.providerId, email)))
+      .limit(1);
+    return rows[0];
+  },
+
+  async insert(exec: Executor, values: typeof users.$inferInsert): Promise<UserRow> {
+    const rows = await exec.insert(users).values(values).returning();
+    return rows[0]!;
   },
 
   async update(

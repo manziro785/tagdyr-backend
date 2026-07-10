@@ -4,3 +4,4 @@ export * from './time-skip.js';
 export * from './life-index.js';
 export * from './sanity.js';
 export * from './reduce.js';
+export * from './resolve-ending.js';

@@ -27,6 +27,8 @@ export const users = pgTable(
     provider: text('provider').notNull(), // google / telegram / email
     providerId: text('provider_id').notNull(),
     email: text('email'),
+    /** scrypt-хэш; null у OAuth/Telegram-пользователей. */
+    passwordHash: text('password_hash'),
     displayName: text('display_name').notNull(),
     avatarUrl: text('avatar_url'),
     locale: localeEnum('locale').notNull().default('ru'),

@@ -43,6 +43,8 @@ export const endingSchema = z.object({
   title: z.string().min(1),
   archetype: z.string().min(1),
   description: z.string(),
+  /** Бонус к индексу жизни за этот архетип (§6.3). */
+  bonus: z.number().default(0),
 });
 export type Ending = z.infer<typeof endingSchema>;
 

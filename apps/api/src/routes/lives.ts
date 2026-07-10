@@ -13,6 +13,7 @@ import * as livesService from '../services/lives.service.js';
 import { completeSeason } from '../services/complete-season.service.js';
 import { rewindLife } from '../services/rewind.service.js';
 import { compareLives } from '../services/compare.service.js';
+import { finishLife } from '../services/finish-life.service.js';
 
 export const livesRoutes = new Hono<AppEnv>();
 
@@ -83,6 +84,13 @@ livesRoutes.post('/:id/seasons/:n/complete', async (c) => {
     idempotencyKey,
   });
   return c.json(result);
+});
+
+// POST /lives/:id/finish — глобальная концовка + финальный индекс + разблокировки
+livesRoutes.post('/:id/finish', async (c) => {
+  const userId = requireUserId(c);
+  const { id } = parseInput(c.req.param(), idParam);
+  return c.json(await finishLife({ userId, lifeId: id }));
 });
 
 // POST /lives/:id/rewind — «переписать судьбу»

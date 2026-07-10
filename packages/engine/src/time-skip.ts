@@ -37,6 +37,25 @@ export interface ApplyTimeSkipResult {
   timeSkip: TimeSkip;
 }
 
+/** Восстановление за год скипа: годы между этапами лечат усталость и настроение. */
+export const RECOVERY_PER_YEAR = { energy: 4, mood: 3 } as const;
+
+/**
+ * Небольшая регенерация энергии/настроения за годы между сезонами.
+ * Детерминированная, только вверх, с потолком 100 — иначе энергия в игре
+ * представляет собой только расходуемый ресурс и любой ран сползает к выгоранию.
+ */
+export function recoverAfterYears(
+  stats: { energy: number; mood: number },
+  years: number,
+): { energy: number; mood: number } {
+  if (years <= 0) return { energy: stats.energy, mood: stats.mood };
+  return {
+    energy: Math.min(100, stats.energy + years * RECOVERY_PER_YEAR.energy),
+    mood: Math.min(100, stats.mood + years * RECOVERY_PER_YEAR.mood),
+  };
+}
+
 /**
  * Скип времени между сезонами (§6.2). Детерминированная функция:
  * накопления и каждый долг растут сложным процентом за `years` лет.

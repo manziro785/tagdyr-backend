@@ -7,6 +7,11 @@ import { notFound } from '../http/errors.js';
 import { db } from '../db/client.js';
 import { usersRepo } from '../repositories/users.repo.js';
 import type { UserRow } from '../db/schema.js';
+import {
+  getCardsCollection,
+  getCharactersRoster,
+  getEndingsCollection,
+} from '../services/collections.service.js';
 
 export const meRoutes = new Hono<AppEnv>();
 
@@ -39,4 +44,22 @@ meRoutes.patch('/', async (c) => {
     ...(body.locale !== undefined ? { locale: body.locale } : {}),
   });
   return c.json(toMe(updated));
+});
+
+// GET /me/endings — галерея концовок («открыто 3 из 12»)
+meRoutes.get('/endings', async (c) => {
+  const userId = requireUserId(c);
+  return c.json(await getEndingsCollection(userId));
+});
+
+// GET /me/knowledge-cards — коллекция карточек знаний
+meRoutes.get('/knowledge-cards', async (c) => {
+  const userId = requireUserId(c);
+  return c.json(await getCardsCollection(userId));
+});
+
+// GET /me/characters — ростер с флагами разблокировки
+meRoutes.get('/characters', async (c) => {
+  const userId = requireUserId(c);
+  return c.json(await getCharactersRoster(userId));
 });

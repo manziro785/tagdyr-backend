@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { statsSchema, flagsSchema, debtsSchema, lifeStatusSchema } from './life-state.js';
 import { keyDecisionSchema, choiceLogSchema, lifeSnapshotSchema } from './snapshot.js';
 import { timeSkipSchema } from './time-skip.js';
+import { characterSchema, endingSchema, knowledgeCardSchema } from './content.js';
 
 // ── /lives ──────────────────────────────────────────────────────────────────
 
@@ -126,3 +127,60 @@ export const tokenPairSchema = z.object({
   expiresIn: z.number().int(),
 });
 export type TokenPair = z.infer<typeof tokenPairSchema>;
+
+// ── finish (фаза 4) ─────────────────────────────────────────────────────────
+
+/** POST /lives/:id/finish — расчёт глобальной концовки завершённой жизни. */
+export const finishLifeResponseSchema = z.object({
+  ending: endingSchema,
+  /** Финальный индекс жизни (с бонусом концовки). */
+  lifeIndex: z.number(),
+  /** Открыта ли эта концовка впервые. */
+  newEnding: z.boolean(),
+  /** Персонажи, разблокированные этой концовкой. */
+  unlockedCharacterIds: z.array(z.string()),
+});
+export type FinishLifeResponse = z.infer<typeof finishLifeResponseSchema>;
+
+// ── коллекции (фаза 4) ──────────────────────────────────────────────────────
+
+export const endingsCollectionSchema = z.object({
+  total: z.number().int(),
+  unlocked: z.number().int(),
+  items: z.array(endingSchema.extend({ unlockedAt: z.string().datetime().nullable() })),
+});
+export type EndingsCollection = z.infer<typeof endingsCollectionSchema>;
+
+export const cardsCollectionSchema = z.object({
+  total: z.number().int(),
+  unlocked: z.number().int(),
+  items: z.array(knowledgeCardSchema.extend({ unlockedAt: z.string().datetime().nullable() })),
+});
+export type CardsCollection = z.infer<typeof cardsCollectionSchema>;
+
+export const charactersRosterSchema = z.object({
+  items: z.array(characterSchema.extend({ unlocked: z.boolean() })),
+});
+export type CharactersRoster = z.infer<typeof charactersRosterSchema>;
+
+// ── auth: email + пароль ────────────────────────────────────────────────────
+
+/** POST /auth/register — регистрация по email. */
+export const registerRequestSchema = z.object({
+  email: z.string().trim().toLowerCase().email().max(254),
+  /** Верхняя граница — защита от DoS через scrypt на мегабайтных паролях. */
+  password: z.string().min(8).max(72),
+  displayName: z.string().trim().min(1).max(60),
+});
+export type RegisterRequest = z.infer<typeof registerRequestSchema>;
+
+/** POST /auth/login — вход по email. */
+export const loginRequestSchema = z.object({
+  email: z.string().trim().toLowerCase().email().max(254),
+  password: z.string().min(1).max(72),
+});
+export type LoginRequest = z.infer<typeof loginRequestSchema>;
+
+/** Ответ register/login: пара токенов + профиль, чтобы фронт не делал второй запрос. */
+export const authResponseSchema = tokenPairSchema.extend({ user: meSchema });
+export type AuthResponse = z.infer<typeof authResponseSchema>;

@@ -3,6 +3,7 @@ import {
   applyTimeSkip,
   computeLifeIndex,
   checkEndStateSanity,
+  recoverAfterYears,
   yearsBetweenSeasons,
 } from '@tagdyr/engine';
 import type {
@@ -111,10 +112,11 @@ export async function completeSeason(
     const isFinalSeason = seasonNumber >= MAX_SEASON;
     const years = yearsBetweenSeasons(seasonNumber, cfg);
 
-    // деньги после скипа: накопления растут, долги растут отдельно (хранятся в debts)
+    // после скипа: накопления растут, долги растут отдельно, годы лечат усталость
     const nextStats = {
       ...body.endState.stats,
       money: skip.savingsAfter,
+      ...recoverAfterYears(body.endState.stats, years),
     };
 
     // 8. обновление lives
@@ -223,7 +225,11 @@ function buildResponseFromExisting(
           seasonNumber: snap.seasonNumber + 1,
           // снапшот хранит возраст на конец сезона; старт следующего = +годы перехода
           age: snap.age + years,
-          stats: { ...snap.stats, money: skip.savingsAfter },
+          stats: {
+            ...snap.stats,
+            money: skip.savingsAfter,
+            ...recoverAfterYears(snap.stats, years),
+          },
           flags: snap.flags,
           debts: skip.debtsAfter,
         },
