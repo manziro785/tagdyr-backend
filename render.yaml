@@ -1,0 +1,35 @@
+# Blueprint для Render: Dashboard → New → Blueprint → выбрать этот репозиторий.
+# БД уже существует отдельно (Render Postgres) — в DATABASE_URL вставить
+# её Internal Database URL (сервис и база в одном регионе oregon).
+#
+# Миграции на free-плане прогоняются вручную: pnpm db:migrate (preDeployCommand
+# доступен только на платных планах). Текущая схема уже применена.
+services:
+  - type: web
+    name: tagdyr-api
+    runtime: node
+    region: oregon
+    plan: free
+    buildCommand: corepack enable && corepack prepare pnpm@11.6.0 --activate && pnpm install --frozen-lockfile && pnpm build
+    startCommand: node apps/api/dist/server.js
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false # Internal Database URL из настроек Postgres
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_TTL
+        value: "900"
+      - key: JWT_REFRESH_TTL
+        value: "2592000"
+      - key: CORS_ORIGINS
+        value: https://tagdyr.vercel.app,http://localhost:3000
+      - key: SAVINGS_RATE
+        value: "0.08"
+      - key: DEFAULT_DEBT_RATE
+        value: "0.14"
