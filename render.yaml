@@ -10,7 +10,8 @@ services:
     runtime: node
     region: oregon
     plan: free
-    buildCommand: corepack enable && corepack prepare pnpm@11.6.0 --activate && pnpm install --frozen-lockfile && pnpm build
+    # corepack enable падает на Render (read-only /usr/bin) — ставим pnpm через npm
+    buildCommand: npm install -g pnpm@11.6.0 && pnpm install --frozen-lockfile && pnpm build
     startCommand: node apps/api/dist/server.js
     healthCheckPath: /api/v1/health
     autoDeploy: true
