@@ -21,6 +21,20 @@ export const usersRepo = {
     return rows[0];
   },
 
+  /** OAuth-пользователь: providerId — стабильный id у провайдера (Google sub). */
+  async findByProvider(
+    exec: Executor,
+    provider: string,
+    providerId: string,
+  ): Promise<UserRow | undefined> {
+    const rows = await exec
+      .select()
+      .from(users)
+      .where(and(eq(users.provider, provider), eq(users.providerId, providerId)))
+      .limit(1);
+    return rows[0];
+  },
+
   async insert(exec: Executor, values: typeof users.$inferInsert): Promise<UserRow> {
     const rows = await exec.insert(users).values(values).returning();
     return rows[0]!;

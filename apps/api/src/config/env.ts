@@ -20,6 +20,9 @@ const envSchema = z.object({
     .default('http://localhost:3000')
     .transform((s) => s.split(',').map((o) => o.trim()).filter(Boolean)),
 
+  /** OAuth client id для «Входа через Google»; без него роут отвечает 404. */
+  GOOGLE_CLIENT_ID: z.string().optional(),
+
   SAVINGS_RATE: z.coerce.number().min(0).max(5).optional(),
   DEFAULT_DEBT_RATE: z.coerce.number().min(0).max(5).optional(),
 

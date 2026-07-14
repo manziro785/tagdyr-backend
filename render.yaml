@@ -30,6 +30,8 @@ services:
         value: "2592000"
       - key: CORS_ORIGINS
         value: https://tagdyr.vercel.app,http://localhost:3000
+      - key: GOOGLE_CLIENT_ID
+        sync: false # OAuth client id из Google Cloud Console; пусто = Google-вход выключен
       - key: SAVINGS_RATE
         value: "0.08"
       - key: DEFAULT_DEBT_RATE

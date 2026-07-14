@@ -181,6 +181,13 @@ export const loginRequestSchema = z.object({
 });
 export type LoginRequest = z.infer<typeof loginRequestSchema>;
 
+/** POST /auth/google — вход по ID-токену Google Identity Services. */
+export const googleAuthRequestSchema = z.object({
+  /** JWT из GIS-callback; подпись проверяем на бэке через JWKS Google. */
+  idToken: z.string().min(20).max(4096),
+});
+export type GoogleAuthRequest = z.infer<typeof googleAuthRequestSchema>;
+
 /** Ответ register/login: пара токенов + профиль, чтобы фронт не делал второй запрос. */
 export const authResponseSchema = tokenPairSchema.extend({ user: meSchema });
 export type AuthResponse = z.infer<typeof authResponseSchema>;
