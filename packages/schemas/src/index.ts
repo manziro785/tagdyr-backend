@@ -4,4 +4,5 @@ export * from './snapshot.js';
 export * from './time-skip.js';
 export * from './api.js';
 export * from './compare.js';
+export * from './meta.js';
 export * from './errors.js';

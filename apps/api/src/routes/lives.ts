@@ -14,6 +14,7 @@ import { completeSeason } from '../services/complete-season.service.js';
 import { rewindLife } from '../services/rewind.service.js';
 import { compareLives } from '../services/compare.service.js';
 import { finishLife } from '../services/finish-life.service.js';
+import { createShareLink } from '../services/share.service.js';
 
 export const livesRoutes = new Hono<AppEnv>();
 
@@ -91,6 +92,13 @@ livesRoutes.post('/:id/finish', async (c) => {
   const userId = requireUserId(c);
   const { id } = parseInput(c.req.param(), idParam);
   return c.json(await finishLife({ userId, lifeId: id }));
+});
+
+// GET /lives/:id/share — публичный токен + безопасный срез для share-карточки
+livesRoutes.get('/:id/share', async (c) => {
+  const userId = requireUserId(c);
+  const { id } = parseInput(c.req.param(), idParam);
+  return c.json(await createShareLink(userId, id));
 });
 
 // POST /lives/:id/rewind — «переписать судьбу»

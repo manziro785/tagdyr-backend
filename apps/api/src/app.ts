@@ -9,6 +9,8 @@ import { healthRoutes } from './routes/health.js';
 import { authRoutes } from './routes/auth.js';
 import { meRoutes } from './routes/me.js';
 import { livesRoutes } from './routes/lives.js';
+import { dilemmaRoutes, leaderboardRoutes } from './routes/meta.js';
+import { shareRoutes } from './routes/share.js';
 
 export function createApp() {
   const env = loadEnv();
@@ -29,10 +31,13 @@ export function createApp() {
   // публичные
   app.route('/api/v1', healthRoutes);
   app.route('/api/v1/auth', authRoutes);
+  app.route('/api/v1/share', shareRoutes);
 
   // приватные (auth-middleware внутри роутеров)
   app.route('/api/v1/me', meRoutes);
   app.route('/api/v1/lives', livesRoutes);
+  app.route('/api/v1/dilemma', dilemmaRoutes);
+  app.route('/api/v1/leaderboard', leaderboardRoutes);
 
   // 404 в едином формате
   app.notFound((c) => sendError(c, notFound(`Route not found: ${c.req.method} ${c.req.path}`)));
